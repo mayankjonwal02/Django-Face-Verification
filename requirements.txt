@@ -3,3 +3,4 @@ django-rest-framework
 django-cors-headers
 opencv-python
 numpy
+Pillow
