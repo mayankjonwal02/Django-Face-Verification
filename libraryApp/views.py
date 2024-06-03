@@ -11,6 +11,8 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 import os
+from deepface import DeepFace
+import pandas as pd
 
 # Create your views here.
 
@@ -162,16 +164,42 @@ def capture_image(request):
                 width, height = 640, 480
                 resized_img = cv2.resize(img, (width, height))
 
-                # Display the resized image (for debugging purposes)
-                cv2.imshow('Resized Image', resized_img)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+                # Save the resized image
+                cv2.imwrite("fetched_image.jpg", resized_img)
 
-                # Return a success message with optional processing results
-                return JsonResponse({'message': 'Image received successfully!', 'processed_data': None})
+                # Load images from folders
+                known_folder = "known"
+                unknown_folder = "unknown"
+
+                # Perform face recognition
+                try:
+                    recognition = DeepFace.find(img_path="fetched_image.jpg", db_path="Data", model_name="VGG-Face", distance_metric="euclidean_l2",enforce_detection=True)
+                    print(recognition)
+                    # Handle recognition result
+                    if recognition:
+                        try:
+                            identity = remove_data_jpg(recognition[0]['identity'][0])
+                            return JsonResponse({'message': 'Image received successfully!', 'processed_data': None, 'recognition': identity})
+                        except KeyError as e:
+                            return JsonResponse({'message': 'Image received successfully!',"error":str(e), 'processed_data': None, 'recognition': 'Unknown'})
+                    else:
+                        return JsonResponse({'message': 'Image received successfully!', 'processed_data': None, 'recognition': 'Unknown'})
+                except ValueError as e:
+                    return JsonResponse({'message': 'Image received successfully!','error':str(e), 'processed_data': None, 'recognition': 'Unknown'})
             else:
-                return JsonResponse({'error': 'Missing image data in request body'}, status=400)
+                return JsonResponse({'error': 'Missing image data in request body','recognition': 'Unknown'}, status=400)
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+            return JsonResponse({'error': 'Invalid JSON','recognition': 'Unknown'}, status=400)
     else:
-        return JsonResponse({'error': 'Invalid request method (POST required)'}, status=405)
+        return JsonResponse({'error': 'Invalid request method (POST required)','recognition': 'Unknown'}, status=405)
+    
+
+def remove_data_jpg(string):
+
+  start_index = string.find("\\") + 1  # Skip past leading "Data/"
+  end_index = string.rfind(".")  # Find the last occurrence of "."
+  if start_index != -1 and end_index != -1:
+    return string[start_index:end_index]
+  else:
+    # Handle cases where "Data/" or ".jpg" is not present
+    return string

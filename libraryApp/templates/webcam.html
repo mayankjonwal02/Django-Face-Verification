@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <h1>Webcam Capture</h1>
+  <h1 id="detection">Webcam Capture</h1>
   <div style="display: flex; flex-direction: row;">
     <video id="webcam" autoplay playsinline></video>
     <canvas id="canvas" style="display:none;"></canvas>
@@ -85,6 +85,7 @@
           if (response.ok) {
             const jsonResponse = await response.json();
             console.log('Image sent successfully!', jsonResponse);
+            document.getElementById('detection').innerText = jsonResponse.recognition;
           } else {
             console.error('Error sending image:', response.statusText);
           }
