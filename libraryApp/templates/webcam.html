@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webcam Capture</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    video, canvas {
+      border: 1px solid black;
+    }
+    #capture {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Webcam Capture</h1>
+  <div style="display: flex; flex-direction: row;">
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="photo" alt="Captured Photo" style="display: none;">
+  </div>
+  <button id="capture">Capture Photo</button>
+
+  <script>
+    (function() {
+      const video = document.getElementById('webcam');
+      const canvas = document.getElementById('canvas');
+      const photo = document.getElementById('photo');
+      const captureButton = document.getElementById('capture');
+      const constraints = {
+        video: true
+      };
+
+      // Access the webcam
+      async function init() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          handleSuccess(stream);
+        } catch (e) {
+          console.error('navigator.getUserMedia error:', e);
+        }
+      }
+
+      // Success
+      function handleSuccess(stream) {
+        window.stream = stream;
+        video.srcObject = stream;
+      }
+
+      // Capture a photo
+      captureButton.addEventListener('click', () => {
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataURL = canvas.toDataURL('image/png'); // Get base64 image data
+        photo.setAttribute('src', dataURL);
+        photo.style.display = 'inline';
+
+        // Send the captured image data to the API using Fetch API
+        sendImageToAPI(dataURL);
+      });
+
+      // Send captured image to API using Fetch
+      async function sendImageToAPI(dataURL) {
+        try {
+          const response = await fetch('http://localhost:8000/books/capture/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image_data: dataURL })
+          });
+
+          if (response.ok) {
+            const jsonResponse = await response.json();
+            console.log('Image sent successfully!', jsonResponse);
+          } else {
+            console.error('Error sending image:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Network error:', error);
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
