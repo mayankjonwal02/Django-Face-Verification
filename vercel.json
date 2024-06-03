@@ -1,13 +1,8 @@
 {
-    "builds": [
-        {
-            "src": "libraryProject/wsgi.py",
-            "use": "@vercel/python",
-            "config": { "maxLambdaSize": "15mb" , "runtime": "python3.7"}
-        }
-    ],
     "routes": [
-        { "src": "/(.*)", "dest": "libraryProject/wsgi.py" }
+      {
+        "src": "/(.*)",
+        "dest": "api/wsgi.py"
+      }
     ]
-
-}
+  }
