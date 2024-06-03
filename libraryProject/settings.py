@@ -31,7 +31,7 @@ CORS_ALLOW_HEADERS = '__all__'  # Allows all headers
 
 # Optionally, allow credentials (cookies, HTTP auth, etc.)
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.vercel.app']
 
 
 
