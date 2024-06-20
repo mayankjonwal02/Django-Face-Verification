@@ -142,6 +142,9 @@ def hello_world(request):
 def webcam(request):
     return render(request, 'webcam.html')
 
+def register(request):
+    return render(request, 'register.html')
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -203,3 +206,19 @@ def remove_data_jpg(string):
   else:
     # Handle cases where "Data/" or ".jpg" is not present
     return string
+  
+@require_http_methods(["POST"])
+def registerAPI(request):
+    if request.method == 'POST':
+        roll_no = request.POST.get('text-input', '')
+        image_file = request.FILES.get('image-input', None)
+
+        if roll_no and image_file:
+            with open(f'Data/{roll_no}.jpg', 'wb') as f:
+                for chunk in image_file.chunks():
+                    f.write(chunk)
+            return JsonResponse({'message': 'Image received successfully!', 'recognition': 'Unknown'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid request data', 'recognition': 'Unknown'}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed', 'recognition': 'Unknown'}, status=405)

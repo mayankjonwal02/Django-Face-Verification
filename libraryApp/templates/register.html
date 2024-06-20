@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+      
+       
+        
+        <h2>Text and Image Input</h2>
+  
+        <!-- Text input field -->
+        <label for="text-input">Enter Roll No:</label><br>
+        <input type="text" id="text-input" name="text-input"><br><br>
+        
+        <!-- Image file input -->
+        <label for="image-input">Choose an Image:</label><br>
+        <input type="file" id="image-input" name="image-input"><br><br>
+        
+        <!-- Submit button (optional) -->
+        <input id="submit" value="Submit">
+
+
+        <script>
+            document.getElementById("submit").addEventListener("click", function() {
+                const textInput = document.getElementById("text-input").value;
+                const imageInput = document.getElementById("image-input").files[0];
+                const formData = new FormData();
+                formData.append("text-input", textInput);
+                formData.append("image-input", imageInput);
+                fetch("http://localhost:8000/books/register/", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            });
+        </script>
+    </body>
+</html>
