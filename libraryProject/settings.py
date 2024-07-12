@@ -27,12 +27,17 @@ DEBUG = True
 
 CORS_ALLOW_ALL_ORIGINS = True  # Allows all origins
 CORS_ALLOW_METHODS = '__all__'  # Allows all HTTP methods
-CORS_ALLOW_HEADERS = '__all__'  # Allows all headers
+# CORS_ALLOW_HEADERS = '__all__'  # Allows all headers
+CORS_ALLOW_HEADERS = [
+    'content-type',  # Explicitly allow Content-Type header
+    'x-csrftoken',  # Allow CSRF token header
+]
 
 # Optionally, allow credentials (cookies, HTTP auth, etc.)
 CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ['*']
-
+# CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 
 # Application definition

@@ -13,7 +13,7 @@ from io import BytesIO
 import os
 from deepface import DeepFace
 import pandas as pd
-
+from datetime import datetime
 # Create your views here.
 
 
@@ -138,10 +138,10 @@ def play_video(request):
 def hello_world(request):
     return render(request, 'helloworld.html')
 
-
+@csrf_exempt
 def webcam(request):
     return render(request, 'webcam.html')
-
+@csrf_exempt
 def register(request):
     return render(request, 'register.html')
 
@@ -182,6 +182,10 @@ def capture_image(request):
                     if recognition:
                         try:
                             identity = remove_data_jpg(recognition[0]['identity'][0])
+                            identity = identity.split('_')[0]
+                            now = datetime.now()
+                            timestamp = now.timestamp()
+                            cv2.imwrite("Data" + '/' + identity +"_"+ str(timestamp)+ '.jpg', resized_img)
                             return JsonResponse({'message': 'Image received successfully!', 'processed_data': None, 'recognition': identity})
                         except KeyError as e:
                             return JsonResponse({'message': 'Image received successfully!',"error":str(e), 'processed_data': None, 'recognition': 'Unknown'})
@@ -207,6 +211,7 @@ def remove_data_jpg(string):
     # Handle cases where "Data/" or ".jpg" is not present
     return string
   
+@csrf_exempt
 @require_http_methods(["POST"])
 def registerAPI(request):
     if request.method == 'POST':
@@ -221,4 +226,4 @@ def registerAPI(request):
         else:
             return JsonResponse({'error': 'Invalid request data', 'recognition': 'Unknown'}, status=400)
     else:
-        return JsonResponse({'error': 'Method not allowed', 'recognition': 'Unknown'}, status=405)
+        return JsonResponse({'error': 'Method not allowed', 'recognition': 'Unknown'}, status=405) 
